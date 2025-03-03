@@ -53,12 +53,10 @@ class UserController extends GetxController {
     try {
       if (!email.endsWith('@reqres.in')) {
         error.value = 'Email must use @reqres.in domain';
-        showErrorSnackbar(error.value);
         return;
       }
       if (users.any((user) => user.email == email)) {
         error.value = 'Email already exists';
-        showErrorSnackbar(error.value);
         return;
       }
       final randomId = Random().nextInt(12) + 1;
@@ -76,7 +74,6 @@ class UserController extends GetxController {
       showSuccessSnackbar("User added successfully");
     } catch (e) {
       error.value = 'Failed to add user';
-      showErrorSnackbar(error.value);
     } finally {
       isAddingUser.value = false;
     }
@@ -88,7 +85,13 @@ class UserController extends GetxController {
       await _userRepository.updateUser(user.id!, user.firstName!, user.email!);
       final index = users.indexWhere((u) => u.id == user.id);
       if (index != -1) {
-        users[index] = user;
+        users[index] = UserModel(
+          id: user.id,
+          email: user.email,
+          firstName: user.firstName ?? users[index].firstName,
+          lastName: user.lastName ?? users[index].lastName,
+          avatar: user.avatar ?? users[index].avatar,
+        );
         await saveUsersToPrefs();
         Get.back();
         showSuccessSnackbar("User updated successfully");
