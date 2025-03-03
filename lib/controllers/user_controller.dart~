@@ -53,12 +53,12 @@ class UserController extends GetxController {
     try {
       if (!email.endsWith('@reqres.in')) {
         error.value = 'Email must use @reqres.in domain';
-        showErrorSnackbar(error.value);
+        showErrorSnackbar(error.value); // Tambahkan ini
         return;
       }
       if (users.any((user) => user.email == email)) {
         error.value = 'Email already exists';
-        showErrorSnackbar(error.value);
+        showErrorSnackbar(error.value); // Tambahkan ini
         return;
       }
       final randomId = Random().nextInt(12) + 1;
@@ -76,7 +76,7 @@ class UserController extends GetxController {
       showSuccessSnackbar("User added successfully");
     } catch (e) {
       error.value = 'Failed to add user';
-      showErrorSnackbar(error.value);
+      showErrorSnackbar(error.value); // Tambahkan ini
     } finally {
       isAddingUser.value = false;
     }

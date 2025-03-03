@@ -1,0 +1,85 @@
+import '../models/user_model.dart';
+import 'package:crud_project/data/services/api_service.dart';
+
+class UserRepository {
+  final ApiService apiService;
+
+  UserRepository(this.apiService);
+
+  Future<bool> login(String email, String password) async {
+    try {
+      final response = await apiService.post('/login', {
+        'email': email,
+        'password': password,
+      });
+      return response.statusCode == 200 && response.data['token'] != null;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  Future<bool> register(String email, String password) async {
+    try {
+      final response = await apiService.post('/register', {
+        'email': email,
+        'password': password,
+      });
+      return response.statusCode == 200;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  Future<List<UserModel>> getAllUsers() async {
+    List<UserModel> allUsers = [];
+    int page = 1;
+    bool hasMorePages = true;
+
+    while (hasMorePages) {
+      try {
+        final response = await apiService.get('/users', queryParameters: {'page': page});
+
+        if (response.statusCode == 200) {
+          List<UserModel> users = (response.data['data'] as List)
+              .map((user) => UserModel.fromJson(user))
+              .toList();
+          allUsers.addAll(users);
+
+          int totalPages = response.data['total_pages'];
+          if (page >= totalPages) {
+            hasMorePages = false;
+          } else {
+            page++;
+          }
+        } else {
+          return [];
+        }
+      } catch (e) {
+        return [];
+      }
+    }
+
+    return allUsers;
+  }
+
+  Future<bool> updateUser(int id, String firstName, String email) async {
+    try {
+      final response = await apiService.put('/users/$id', {
+        'first_name': firstName,
+        'email': email,
+      });
+      return response.statusCode == 200;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  Future<bool> deleteUser(int id) async {
+    try {
+      final response = await apiService.delete('/users/$id');
+      return response.statusCode == 204;
+    } catch (e) {
+      return false;
+    }
+  }
+}
